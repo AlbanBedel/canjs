@@ -785,11 +785,18 @@ steal('can/util','can/observe', function( can ) {
 				// check if there's a make function like makeFindAll
 				// these take deferred function and can do special
 				// behavior with it (like look up data in a store)
-				if (self["make"+can.capitalize(name)]){
-					// pass the deferred method to the make method to get back
-					// the "findAll" method.
-					var newMethod = self["make"+can.capitalize(name)](self[name]);
-					can.Construct._overwrite(self, base, name,function(){
+				var methodMaker = self["make" + can.capitalize(name)];
+				// to make sure that the maker filter is not
+				// recursively applied on inherited methods we mark
+				// the generated method with its maker.
+				if (methodMaker &&
+				    (self[name] == null ||
+				     self[name]._methodMaker == null ||
+				     self[name]._methodMaker !== methodMaker)) {
+					// pass the deferred method to the make method
+					// to get back the "findAll" method.
+					var newMethod = methodMaker(self[name]);
+					function applyNewMethod() {
 						// increment the numer of requests
 						can.Model._reqs++;
 						var def = newMethod.apply(this, arguments);
@@ -798,7 +805,10 @@ steal('can/util','can/observe', function( can ) {
 
 						// attach abort to our then and return it
 						return then;
-					})
+					}
+					applyNewMethod._methodMaker = methodMaker;
+					can.Construct._overwrite(self, base, name,
+								 applyNewMethod)
 				}
 			});
 
