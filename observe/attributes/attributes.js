@@ -375,16 +375,16 @@ can.Observe.prototype.serialize = function(attrName, stack) {
 			type = Class.attributes ? Class.attributes[name] : 0;
 			converter = Class.serialize ? Class.serialize[type] : 0;
 
-			// if the value is an object, and has a attrs or serialize function
-			where[name] = val && typeof val.serialize == 'function' ?
-			// call attrs or serialize to get the original data back
-			val.serialize(undefined, stack) :
-			// otherwise if we have  a converter
-			converter ?
+			// if the container has a converter
+			where[name] = val && converter ?
 				// use the converter
 				converter(val, type) :
-				// or return the val
-				val;
+				// otherwise if the value is an object, and has a serialize function
+				typeof val.serialize == 'function' ?
+					// call attrs or serialize to get the original data back
+					val.serialize(undefined, stack) :
+					// or return the val
+					val;
 		}
 	});
 
