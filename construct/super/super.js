@@ -11,7 +11,6 @@ steal('can/util', 'can/construct', function(can, Construct){
 		can.Construct._overwrite = function(addTo, base, name, val) {
 			// Check if we're overwriting an existing function
 			addTo[name] = isFunction(val) &&
-							  isFunction(base[name]) &&
 							  fnTest.test(val) ? (function( name, fn ) {
 					return function() {
 						var tmp = this._super,
@@ -19,7 +18,8 @@ steal('can/util', 'can/construct', function(can, Construct){
 
 						// Add a new ._super() method that is the same method
 						// but on the super-class
-						this._super = base[name];
+						this._super = isFunction(base[name]) ?
+							base[name] : function(){};
 
 						// The method only need to be bound temporarily, so we
 						// remove it when we're done executing
