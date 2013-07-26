@@ -178,15 +178,15 @@ can.each([ can.Observe, can.Model ], function(clss){
 				return true;
 			},
 			"default": function( val, oldVal, error, type ) {
-				var construct = can.getObject(type),
-					context = window,
+				var context = this.getObjectContext(),
+				    construct = can.getObject(type, context),
 					realType;
 				// if type has a . we need to look it up
 				if ( type.indexOf(".") >= 0 ) {
 					// get everything before the last .
 					realType = type.substring(0, type.lastIndexOf("."));
 					// get the object before the last .
-					context = can.getObject(realType);
+					context = can.getObject(realType, context);
 				}
 				return typeof construct == "function" ? construct.call(context, val, oldVal) : val;
 			}
@@ -233,6 +233,17 @@ can.each([ can.Observe, can.Model ], function(clss){
 			"date": function( val ) {
 				return val && val.getTime()
 			}
+		},
+		/**
+		 * @function can.Observe.attributes.static.getObjectContext
+		 * @parent can.Observe.attributes.static
+		 *
+		 * can.Observe.attributes.static.getObjectContext allow to override the
+		 * context used to lookup Model types in the default convert handler.
+		 *
+		 */
+		getObjectContext: function() {
+			return window;
 		}
 	});
 	
