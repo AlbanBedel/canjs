@@ -384,7 +384,7 @@ can.Observe.prototype.serialize = function(attrName, stack) {
 		} 
 		else {
 			type = Class.attributes ? Class.attributes[name] : 0;
-			converter = Class.serialize ? Class.serialize[type] : 0;
+			converter = Class.serialize && type ? (Class.serialize[type] || Class.serialize["default"]) : 0;
 
 			// if the container has a converter
 			where[name] = val && converter ?
